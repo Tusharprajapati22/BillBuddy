@@ -1637,15 +1637,6 @@ button {
       Continue with Google
     </button>
 
-    <div class="auth-divider">
-      <span>OR QUICK DEMO</span>
-    </div>
-
-    <!-- Quick test demo login -->
-    <button class="demo-login-btn" id="demoInstantLoginBtn">
-      ⚡ Test with Demo Account (Instant Access)
-    </button>
-
     <div class="auth-terms">
       By signing in, you agree to BillBuddy's Terms of Service and Privacy Policy. Securely managed by Firebase & Supabase.
     </div>
@@ -2570,18 +2561,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === $("authModalOverlay")) closeAuthModal();
   });
   $("googleSignInBtn").addEventListener("click", handleGoogleSignIn);
-  $("demoInstantLoginBtn").addEventListener("click", () => {
-    closeAuthModal();
-    setLoggedInUser({
-      uid: "user_demo_101",
-      email: "demo@billbuddy.com",
-      name: "Demo Explorer",
-      photoURL: "https://api.dicebear.com/7.x/bottts/svg?seed=DemoExplorer"
-    });
-    idToken = "demo_token_101";
-    showToast(" Welcome to BillBuddy Workspace!");
-    showDashboardView();
-  });
 
   // Logout
   $("logoutBtn").addEventListener("click", handleLogout);
