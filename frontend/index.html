@@ -15,17 +15,31 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
+<!-- Early Theme Detection to prevent flash of unstyled theme -->
+<script>
+  (function() {
+    try {
+      const saved = localStorage.getItem("billbuddy_theme");
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme = saved || (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+
 <style>
 :root {
   --primary: #5851ff;
   --primary-hover: #4339f2;
-  --primary-light: #f0efff;
+  --primary-light: #eff2fe;
   --secondary: #0ea5e9;
   --accent: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
   --bg: #f8fafc;
   --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --surface-card: #ffffff;
   --text: #0f172a;
   --text-muted: #64748b;
   --border: #e2e8f0;
@@ -37,7 +51,34 @@
   --shadow-md: 0 10px 30px rgba(88, 81, 255, 0.08);
   --shadow-lg: 0 20px 50px rgba(15, 23, 42, 0.08);
   --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --hero-glow: radial-gradient(circle at 50% 15%, rgba(88, 81, 255, 0.12) 0%, rgba(14, 165, 233, 0.06) 40%, transparent 70%);
+  --grid-pattern: radial-gradient(rgba(88, 81, 255, 0.12) 1px, transparent 1px);
+}
+
+[data-theme="dark"] {
+  --primary: #6d66ff;
+  --primary-hover: #5a52ff;
+  --primary-light: rgba(109, 102, 255, 0.18);
+  --secondary: #38bdf8;
+  --accent: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --bg: #090d16;
+  --surface: #111827;
+  --surface-alt: #162036;
+  --surface-card: #131b2e;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --border: #1f293d;
+  --border-light: #24314c;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --glass-bg: rgba(17, 24, 39, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --hero-glow: radial-gradient(circle at 50% 15%, rgba(109, 102, 255, 0.22) 0%, rgba(56, 189, 248, 0.12) 40%, transparent 70%);
+  --grid-pattern: radial-gradient(rgba(109, 102, 255, 0.22) 1px, transparent 1px);
 }
 
 * {
@@ -105,7 +146,7 @@ button {
 }
 
 .btn-outline {
-  background: #ffffff;
+  background: var(--surface);
   color: var(--text);
   border: 1px solid var(--border);
 }
@@ -118,25 +159,56 @@ button {
 }
 
 .btn-google {
-  background: #ffffff;
-  color: #1f2937;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  background: var(--surface-card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
   font-weight: 600;
   width: 100%;
   padding: 14px 20px;
 }
 
 .btn-google:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.09);
+  background: var(--surface-alt);
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
 .google-icon {
   width: 20px;
   height: 20px;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 9px 15px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle-icon {
+  font-size: 15px;
+  line-height: 1;
 }
 
 /* ========================================================= */
@@ -147,11 +219,12 @@ button {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--glass-bg);
   backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-  padding: 18px 0;
-  transition: all 0.3s ease;
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .landing-nav .nav-content {
@@ -179,11 +252,11 @@ button {
 .logo-badge {
   font-size: 11px;
   font-weight: 700;
-  background: #eff6ff;
-  color: #2563eb;
-  padding: 3px 8px;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 3px 9px;
   border-radius: 999px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--border);
   letter-spacing: 0.5px;
 }
 
@@ -218,12 +291,29 @@ button {
 
 .hero-section {
   position: relative;
-  padding: 90px 0 80px;
+  padding: 95px 0 85px;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 10%, rgba(99, 91, 255, 0.08) 0%, transparent 60%);
+  background-image: var(--grid-pattern), var(--hero-glow);
+  background-size: 32px 32px, 100% 100%;
+}
+
+.hero-section::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 650px;
+  height: 380px;
+  background: radial-gradient(circle, rgba(88, 81, 255, 0.22) 0%, rgba(14, 165, 233, 0.12) 50%, transparent 75%);
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .hero-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   align-items: center;
@@ -234,14 +324,15 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #eff2fe;
+  background: var(--surface-alt);
   color: var(--primary);
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   margin-bottom: 22px;
-  border: 1px solid #dcd8ff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .hero-title {
@@ -253,7 +344,7 @@ button {
 }
 
 .hero-title .gradient-text {
-  background: linear-gradient(135deg, #5851ff 0%, #06b6d4 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #06b6d4 50%, #10b981 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -294,12 +385,13 @@ button {
 }
 
 .hero-card-preview {
-  background: #ffffff;
+  background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 26px;
-  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--shadow-lg);
   position: relative;
+  backdrop-filter: blur(12px);
 }
 
 .preview-header {
@@ -312,13 +404,13 @@ button {
 }
 
 .preview-chip {
-  background: #ecfdf5;
-  color: #059669;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent);
   font-size: 11px;
   font-weight: 700;
   padding: 5px 10px;
   border-radius: 999px;
-  border: 1px solid #a7f3d0;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .preview-items {
@@ -332,7 +424,7 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  background: #f8fafc;
+  background: var(--surface-alt);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-light);
 }
@@ -345,7 +437,7 @@ button {
 
 .preview-icon {
   font-size: 22px;
-  background: #ffffff;
+  background: var(--surface);
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -363,14 +455,15 @@ button {
 
 .floating-badge {
   position: absolute;
-  background: #ffffff;
+  background: var(--surface-card);
   padding: 12px 18px;
   border-radius: 14px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-lg);
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 12px;
+  color: var(--text);
 }
 
 .floating-badge.badge-top {
@@ -396,7 +489,9 @@ button {
 
 .about-section {
   padding: 100px 0;
-  background: #ffffff;
+  background: var(--surface);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .section-tag {
@@ -414,6 +509,7 @@ button {
   font-weight: 800;
   letter-spacing: -1px;
   margin-bottom: 16px;
+  color: var(--text);
 }
 
 .section-subheading {
@@ -443,16 +539,32 @@ button {
   padding: 36px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease;
+}
+
+.compare-card:hover {
+  transform: translateY(-3px);
 }
 
 .compare-card.problem {
-  background: #fff8f8;
-  border-color: #fee2e2;
+  background: rgba(239, 68, 68, 0.05);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+[data-theme="dark"] .compare-card.problem {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 .compare-card.solution {
-  background: #f6f7ff;
-  border-color: #dedaff;
+  background: rgba(88, 81, 255, 0.05);
+  border-color: rgba(88, 81, 255, 0.22);
+}
+
+[data-theme="dark"] .compare-card.solution {
+  background: rgba(109, 102, 255, 0.1);
+  border-color: rgba(109, 102, 255, 0.3);
 }
 
 .compare-title {
@@ -494,7 +606,7 @@ button {
 }
 
 .feature-card {
-  background: #ffffff;
+  background: var(--surface-card);
   padding: 32px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
@@ -504,8 +616,8 @@ button {
 
 .feature-card:hover {
   transform: translateY(-5px);
-  border-color: #c7c2ff;
-  box-shadow: 0 20px 40px rgba(88, 81, 255, 0.08);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
 }
 
 .feature-icon-box {
@@ -524,6 +636,7 @@ button {
   font-size: 19px;
   font-weight: 700;
   margin-bottom: 10px;
+  color: var(--text);
 }
 
 .feature-card p {
@@ -538,7 +651,9 @@ button {
 
 .steps-section {
   padding: 100px 0;
-  background: #ffffff;
+  background: var(--surface);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .steps-grid {
@@ -549,11 +664,17 @@ button {
 }
 
 .step-card {
-  background: #f8fafc;
+  background: var(--surface-alt);
   padding: 34px 28px;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   position: relative;
+  transition: transform 0.2s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--primary);
 }
 
 .step-number {
@@ -563,7 +684,7 @@ button {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 32px;
   font-weight: 800;
-  color: #e2e8f0;
+  color: var(--border);
 }
 
 .step-badge {
@@ -581,6 +702,7 @@ button {
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 10px;
+  color: var(--text);
 }
 
 .step-card p {
@@ -600,6 +722,8 @@ button {
   text-align: center;
   border-radius: 30px;
   margin: 0 24px 80px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 25px 60px rgba(67, 56, 202, 0.35);
 }
 
 .cta-section h2 {
@@ -619,7 +743,7 @@ button {
 .landing-footer {
   border-top: 1px solid var(--border);
   padding: 50px 0 30px;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .footer-top {
@@ -646,7 +770,7 @@ button {
 .auth-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
@@ -658,10 +782,11 @@ button {
 .auth-modal {
   width: 100%;
   max-width: 440px;
-  background: #ffffff;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
   border-radius: 24px;
   padding: 40px 36px;
-  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-lg);
   position: relative;
   text-align: center;
   animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -676,8 +801,8 @@ button {
   position: absolute;
   top: 18px;
   right: 18px;
-  background: #f1f5f9;
-  border: none;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -687,10 +812,17 @@ button {
   place-items: center;
 }
 
+.auth-close-btn:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
 .auth-modal h2 {
   font-size: 24px;
   font-weight: 800;
   margin: 20px 0 8px;
+  color: var(--text);
 }
 
 .auth-modal p {
@@ -718,7 +850,7 @@ button {
 }
 
 .demo-login-btn {
-  background: #f8fafc;
+  background: var(--surface-alt);
   border: 1px dashed var(--border);
   color: var(--text-muted);
   font-size: 13px;
@@ -729,14 +861,14 @@ button {
 }
 
 .demo-login-btn:hover {
-  background: #f1f5f9;
+  background: var(--surface);
   color: var(--text);
-  border-color: #cbd5e1;
+  border-color: var(--primary);
 }
 
 .auth-terms {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-top: 22px;
 }
 
@@ -751,7 +883,7 @@ button {
 
 .sidebar {
   width: 260px;
-  background: #ffffff;
+  background: var(--surface);
   border-right: 1px solid var(--border);
   position: fixed;
   inset: 0 auto 0 0;
@@ -783,7 +915,7 @@ button {
   gap: 12px;
   border: none;
   background: transparent;
-  color: #64748b;
+  color: var(--text-muted);
   text-align: left;
   padding: 12px 14px;
   border-radius: 12px;
@@ -807,7 +939,7 @@ button {
 .sidebar-bottom {
   margin-top: auto;
   padding: 16px;
-  background: #f8fafc;
+  background: var(--surface-alt);
   border: 1px solid var(--border);
   border-radius: 16px;
 }
@@ -837,6 +969,7 @@ button {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--text);
 }
 
 .user-info-text small {
@@ -850,7 +983,7 @@ button {
 
 .btn-logout {
   margin-top: 12px;
-  background: #ffffff;
+  background: var(--surface);
   border: 1px solid var(--border);
   width: 100%;
   padding: 8px;
@@ -861,8 +994,8 @@ button {
 }
 
 .btn-logout:hover {
-  background: #fef2f2;
-  border-color: #fecaca;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 /* Dashboard Main Content */
@@ -907,7 +1040,7 @@ button {
 }
 
 .stat-box {
-  background: #ffffff;
+  background: var(--surface-card);
   padding: 22px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
@@ -932,10 +1065,10 @@ button {
   font-size: 20px;
 }
 
-.stat-icon-wrapper.blue { background: #eff6ff; color: #2563eb; }
-.stat-icon-wrapper.green { background: #ecfdf5; color: #059669; }
-.stat-icon-wrapper.amber { background: #fffbeb; color: #d97706; }
-.stat-icon-wrapper.purple { background: #f5f3ff; color: #7c3aed; }
+.stat-icon-wrapper.blue { background: rgba(37, 99, 235, 0.12); color: var(--secondary); }
+.stat-icon-wrapper.green { background: rgba(16, 185, 129, 0.12); color: var(--accent); }
+.stat-icon-wrapper.amber { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+.stat-icon-wrapper.purple { background: rgba(109, 102, 255, 0.12); color: var(--primary); }
 
 .stat-box small {
   color: var(--text-muted);
@@ -948,11 +1081,12 @@ button {
   font-weight: 800;
   margin-top: 6px;
   letter-spacing: -0.5px;
+  color: var(--text);
 }
 
 /* Section Container */
 .dash-section {
-  background: #ffffff;
+  background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 26px;
@@ -983,12 +1117,13 @@ button {
   border-radius: 12px;
   outline: none;
   font-size: 14px;
-  background: #f8fafc;
+  background: var(--surface-alt);
+  color: var(--text);
 }
 
 .search-input:focus {
   border-color: var(--primary);
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .category-select {
@@ -997,7 +1132,8 @@ button {
   border-radius: 12px;
   outline: none;
   font-size: 14px;
-  background: #f8fafc;
+  background: var(--surface-alt);
+  color: var(--text);
   min-width: 170px;
 }
 
@@ -1009,7 +1145,7 @@ button {
 }
 
 .item-card {
-  background: #ffffff;
+  background: var(--surface-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 20px;
@@ -1021,8 +1157,8 @@ button {
 
 .item-card:hover {
   transform: translateY(-2px);
-  border-color: #c7c2ff;
-  box-shadow: 0 10px 25px rgba(88, 81, 255, 0.08);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
 }
 
 .item-top {
@@ -1050,27 +1186,28 @@ button {
 }
 
 .badge-active {
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--accent);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .badge-expiring {
-  background: #fffbeb;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .badge-expired {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 .item-card h3 {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 4px;
+  color: var(--text);
 }
 
 .item-category {
@@ -1107,7 +1244,7 @@ button {
   flex: 1;
   padding: 9px;
   border: 1px solid var(--border);
-  background: #f8fafc;
+  background: var(--surface-alt);
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
@@ -1119,13 +1256,13 @@ button {
 .item-btn:hover {
   border-color: var(--primary);
   color: var(--primary);
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .item-btn.delete:hover {
-  border-color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
   color: var(--danger);
-  background: #fef2f2;
+  background: rgba(239, 68, 68, 0.1);
 }
 
 /* Empty State */
@@ -1145,7 +1282,7 @@ button {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
@@ -1159,7 +1296,8 @@ button {
   max-width: 520px;
   max-height: 90vh;
   overflow-y: auto;
-  background: #ffffff;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 30px;
   box-shadow: var(--shadow-lg);
@@ -1181,6 +1319,7 @@ button {
   font-size: 13px;
   font-weight: 700;
   margin-bottom: 6px;
+  color: var(--text);
 }
 
 .form-group input,
@@ -1191,17 +1330,41 @@ button {
   border-radius: 10px;
   outline: none;
   font-size: 14px;
+  background: var(--surface-alt);
+  color: var(--text);
 }
 
 .form-group input:focus,
 .form-group select:focus {
   border-color: var(--primary);
+  background: var(--surface);
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+}
+
+.calculator-card {
+  max-width: 620px;
+  margin: 0 auto;
+  background: var(--surface-card);
+  padding: 36px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+.calculator-card input {
+  background: var(--surface-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.calculator-card input:focus {
+  border-color: var(--primary);
+  background: var(--surface);
 }
 
 .upload-note {
@@ -1221,6 +1384,46 @@ button {
   border-radius: 5px;
   font-size: 10.5px;
   font-weight: 700;
+}
+
+/* Policy & Terms Modal Card */
+.policy-modal-card {
+  width: 100%;
+  max-width: 660px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 34px;
+  box-shadow: var(--shadow-lg);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.policy-modal-card h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+
+.policy-modal-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-top: 18px;
+  margin-bottom: 6px;
+  color: var(--primary);
+}
+
+.policy-modal-card p, .policy-modal-card li {
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.policy-modal-card ul {
+  padding-left: 20px;
+  margin: 8px 0 12px;
 }
 
 /* Toast */
@@ -1298,6 +1501,11 @@ button {
       </ul>
 
       <div class="nav-actions">
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Dark Mode" title="Toggle Dark/Light Mode">
+          <span class="theme-toggle-icon" id="themeToggleIcon">🌙</span>
+          <span id="themeToggleText">Dark</span>
+        </button>
         <!-- Auth Buttons -->
         <button class="btn btn-outline" id="navSignInBtn">Sign In with Google</button>
         <button class="btn btn-primary" id="navDashboardBtn" style="display: none;">Go to Dashboard →</button>
@@ -1540,7 +1748,7 @@ button {
   </section>
 
   <!-- Interactive Quick Calculator -->
-  <section class="about-section" id="calculator" style="background: #f8fafc;">
+  <section class="features-section" id="calculator">
     <div class="container">
       <div class="section-header-center">
         <span class="section-tag">Interactive Preview</span>
@@ -1548,7 +1756,7 @@ button {
         <p class="section-subheading">See how BillBuddy computes warranty expiry in real time.</p>
       </div>
 
-      <div style="max-width: 600px; margin: 0 auto; background: white; padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+      <div class="calculator-card">
         <div class="form-row">
           <div class="form-group">
             <label>Purchase Date</label>
@@ -1560,7 +1768,7 @@ button {
           </div>
         </div>
 
-        <div id="calcResult" style="margin-top: 15px; padding: 18px; border-radius: 12px; background: #f0efff; border: 1px solid #dcd8ff;">
+        <div id="calcResult" style="margin-top: 15px; padding: 18px; border-radius: 12px; background: var(--primary-light); border: 1px solid var(--border);">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div>
               <div style="font-size: 12px; color: var(--text-muted);">Warranty Expiry Date</div>
@@ -1595,15 +1803,31 @@ button {
   <footer class="landing-footer">
     <div class="container">
       <div class="footer-top">
-        <div class="brand-logo">
-          Bill<span>Buddy.</span>
+        <div>
+          <div class="brand-logo">
+            Bill<span>Buddy.</span>
+          </div>
+          <div style="font-size: 13px; color: var(--text-muted); margin-top: 6px;">
+            Smart Warranty Manager & Digital Invoice Cloud Vault
+          </div>
         </div>
-        <div style="font-size: 13px; color: var(--text-muted);">
-          Powered by <strong>FastAPI</strong> · <strong>Supabase</strong> · <strong>Firebase Auth</strong>
+
+        <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap;">
+          <a href="javascript:void(0)" id="footerPrivacyLink" style="color: var(--text-muted); text-decoration: none; font-size: 13.5px; font-weight: 600;">Privacy Policy</a>
+          <a href="javascript:void(0)" id="footerTermsLink" style="color: var(--text-muted); text-decoration: none; font-size: 13.5px; font-weight: 600;">Terms & Conditions</a>
+          <div style="font-size: 13px; color: var(--text-muted);">
+            Powered by <strong>FastAPI</strong> · <strong>Supabase</strong> · <strong>Firebase</strong>
+          </div>
         </div>
       </div>
-      <div class="footer-bottom">
-        © 2026 BillBuddy. All rights reserved. Keep your warranties protected.
+
+      <div class="footer-bottom" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div>
+          © 2026 BillBuddy. All rights reserved. Keep your warranties protected.
+        </div>
+        <div style="font-weight: 600; font-size: 14px; color: var(--text);">
+          Built with ❤️ by <span style="color: var(--primary); font-weight: 800; letter-spacing: -0.2px;">Swanandi Prabhakar Baikar</span>
+        </div>
       </div>
     </div>
   </footer>
@@ -1638,8 +1862,71 @@ button {
     </button>
 
     <div class="auth-terms">
-      By signing in, you agree to BillBuddy's Terms of Service and Privacy Policy. Securely managed by Firebase & Supabase.
+      By signing in, you agree to BillBuddy's <a href="javascript:void(0)" id="authTermsLink" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Terms of Service</a> and <a href="javascript:void(0)" id="authPrivacyLink" style="color: var(--primary); font-weight: 700; text-decoration: underline;">Privacy Policy</a>. Built by Swanandi Prabhakar Baikar.
     </div>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- PRIVACY POLICY MODAL                                      -->
+<!-- ========================================================= -->
+<div id="privacyModalOverlay" class="modal-overlay hidden">
+  <div class="policy-modal-card">
+    <div class="modal-header">
+      <div>
+        <h2>Privacy Policy</h2>
+        <small style="color: var(--text-muted);">Effective Date: October 2026</small>
+      </div>
+      <button class="auth-close-btn" id="closePrivacyModal">×</button>
+    </div>
+
+    <p>Welcome to <strong>BillBuddy</strong>, crafted by <strong>Swanandi Prabhakar Baikar</strong>. Your privacy and the confidentiality of your financial receipts and product warranties are our topmost priority.</p>
+
+    <h3>1. Information We Collect</h3>
+    <p>To provide accurate warranty tracking and digital invoice storage, BillBuddy gathers:</p>
+    <ul>
+      <li><strong>Google Authentication Profile:</strong> Display name, verified email, and profile avatar provided through Firebase Auth.</li>
+      <li><strong>Product & Warranty Records:</strong> Product name, purchase date, warranty period (in months), price, category, brand, and custom tags.</li>
+      <li><strong>Invoice Files:</strong> Purchase receipts, invoices, and warranty cards uploaded in PDF, JPG, or PNG formats.</li>
+    </ul>
+
+    <h3>2. How We Store & Secure Your Data</h3>
+    <p>Your product information is stored securely in <strong>Supabase Postgres</strong>, and all uploaded bill files are encrypted and saved in isolated <strong>Supabase Cloud Storage</strong> buckets accessible only by your authenticated user session.</p>
+
+    <h3>3. Data Sharing & Third Parties</h3>
+    <p>We do NOT sell, rent, or trade your personal information or purchase history with advertisers, third-party brokers, or data analytics firms. Your bills remain private to you.</p>
+
+    <h3>4. Contact & Developer Attribution</h3>
+    <p>This project is proudly built by <strong>Swanandi Prabhakar Baikar</strong>. For inquiries or privacy feedback, reach out through the BillBuddy portal.</p>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- TERMS & CONDITIONS MODAL                                  -->
+<!-- ========================================================= -->
+<div id="termsModalOverlay" class="modal-overlay hidden">
+  <div class="policy-modal-card">
+    <div class="modal-header">
+      <div>
+        <h2>Terms & Conditions</h2>
+        <small style="color: var(--text-muted);">Effective Date: October 2026</small>
+      </div>
+      <button class="auth-close-btn" id="closeTermsModal">×</button>
+    </div>
+
+    <p>Welcome to <strong>BillBuddy</strong>, an application created and maintained by <strong>Swanandi Prabhakar Baikar</strong>. By using this service, you agree to these Terms and Conditions.</p>
+
+    <h3>1. Scope of the Application</h3>
+    <p>BillBuddy serves as a personal warranty calculator and digital bill vault. It helps users monitor device warranties and download saved bills when needed for repairs or insurance claims.</p>
+
+    <h3>2. Warranty Estimation Disclaimer</h3>
+    <p>BillBuddy computes remaining warranty days based on the purchase date and warranty duration entered by the user. Manufacturer terms, extended warranty clauses, and physical damage policies are determined solely by the original manufacturer or seller.</p>
+
+    <h3>3. Cloud Storage Guidelines</h3>
+    <p>Users may upload genuine invoices, cash receipts, and warranty cards up to 10 MB per file. Uploading unlawful, malicious, or non-receipt media is strictly forbidden.</p>
+
+    <h3>4. Intellectual Property & Creator Rights</h3>
+    <p>The user interface, design aesthetic, software architecture, and branding of BillBuddy are the intellectual creation of <strong>Swanandi Prabhakar Baikar</strong>.</p>
   </div>
 </div>
 
@@ -1703,6 +1990,10 @@ button {
       </div>
 
       <div class="topbar-actions">
+        <button class="theme-toggle-btn" id="dashThemeToggleBtn" aria-label="Toggle Dark Mode" title="Toggle Dark/Light Mode">
+          <span class="theme-toggle-icon" id="dashThemeToggleIcon">🌙</span>
+          <span id="dashThemeToggleText">Dark</span>
+        </button>
         <button class="btn btn-outline" id="homeQuickLinkBtn">
           ← Back to Home
         </button>
@@ -2530,10 +2821,82 @@ function updateCalculator() {
 }
 
 // ============================================================
+// THEME SWITCHER (DARK / LIGHT MODE)
+// ============================================================
+
+function getCurrentTheme() {
+  return document.documentElement.getAttribute("data-theme") || "light";
+}
+
+function updateThemeUI(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  const isDark = theme === "dark";
+  const icon = isDark ? "☀️" : "🌙";
+  const label = isDark ? "Light" : "Dark";
+
+  const landingIcon = $("themeToggleIcon");
+  const landingText = $("themeToggleText");
+  if (landingIcon) landingIcon.textContent = icon;
+  if (landingText) landingText.textContent = label;
+
+  const dashIcon = $("dashThemeToggleIcon");
+  const dashText = $("dashThemeToggleText");
+  if (dashIcon) dashIcon.textContent = icon;
+  if (dashText) dashText.textContent = label;
+}
+
+function toggleTheme() {
+  const current = getCurrentTheme();
+  const next = current === "dark" ? "light" : "dark";
+  localStorage.setItem("billbuddy_theme", next);
+  updateThemeUI(next);
+}
+
+// ============================================================
+// PRIVACY POLICY & TERMS MODALS
+// ============================================================
+
+function openPrivacyModal() {
+  $("privacyModalOverlay")?.classList.remove("hidden");
+}
+
+function closePrivacyModal() {
+  $("privacyModalOverlay")?.classList.add("hidden");
+}
+
+function openTermsModal() {
+  $("termsModalOverlay")?.classList.remove("hidden");
+}
+
+function closeTermsModal() {
+  $("termsModalOverlay")?.classList.add("hidden");
+}
+
+// ============================================================
 // EVENT LISTENERS & INITIALIZATION
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Initialize Theme UI from current attribute
+  updateThemeUI(getCurrentTheme());
+  if ($("themeToggleBtn")) $("themeToggleBtn").addEventListener("click", toggleTheme);
+  if ($("dashThemeToggleBtn")) $("dashThemeToggleBtn").addEventListener("click", toggleTheme);
+
+  // Privacy & Terms Modal Listeners
+  $("footerPrivacyLink")?.addEventListener("click", openPrivacyModal);
+  $("authPrivacyLink")?.addEventListener("click", () => { closeAuthModal(); openPrivacyModal(); });
+  $("closePrivacyModal")?.addEventListener("click", closePrivacyModal);
+  $("privacyModalOverlay")?.addEventListener("click", (e) => {
+    if (e.target === $("privacyModalOverlay")) closePrivacyModal();
+  });
+
+  $("footerTermsLink")?.addEventListener("click", openTermsModal);
+  $("authTermsLink")?.addEventListener("click", () => { closeAuthModal(); openTermsModal(); });
+  $("closeTermsModal")?.addEventListener("click", closeTermsModal);
+  $("termsModalOverlay")?.addEventListener("click", (e) => {
+    if (e.target === $("termsModalOverlay")) closeTermsModal();
+  });
+
   // Ensure Firebase config is loaded from backend .env
   loadFirebaseConfig();
 
