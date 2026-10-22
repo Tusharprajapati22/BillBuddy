@@ -2244,49 +2244,29 @@ async function apiDeleteProduct(id) {
   }
 }
 
-// Local Storage Fallback Catalog
+// Local Storage Fallback Catalog (Starts clean with 0 demo products)
 function getLocalStorageProducts() {
   const key = "billbuddy_local_products_" + (currentUser?.email || "guest");
   const stored = localStorage.getItem(key);
-  if (stored) return JSON.parse(stored);
-  const initial = generateDefaultProducts();
-  localStorage.setItem(key, JSON.stringify(initial));
-  return initial;
+  if (stored) {
+    try {
+      const items = JSON.parse(stored);
+      // Clean up legacy demo products if any exist from previous testing
+      if (Array.isArray(items) && items.some(p => p.name === "Apple iPhone 15 Pro" || (p.id && String(p.id).startsWith("product_")))) {
+        localStorage.removeItem(key);
+        return [];
+      }
+      return items;
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
 }
 
 function saveLocalStorageProducts() {
   const key = "billbuddy_local_products_" + (currentUser?.email || "guest");
   localStorage.setItem(key, JSON.stringify(products));
-}
-
-function generateDefaultProducts() {
-  const items = [
-    ["Apple iPhone 15 Pro", "Apple", "Mobile", 134900, 12, "📱", -3],
-    ["MacBook Air M2", "Apple", "Computer", 99900, 12, "💻", -11],
-    ["Sony WH-1000XM5", "Sony", "Accessories", 26990, 12, "🎧", -5],
-    ["Samsung 55' OLED 4K TV", "Samsung", "Electronics", 89900, 24, "📺", -8],
-    ["LG Smart Refrigerator", "LG", "Home Appliances", 42990, 24, "🏠", -14],
-    ["Dyson V12 Vacuum", "Dyson", "Home Appliances", 44900, 24, "🏠", -2],
-    ["Apple Watch Series 9", "Apple", "Accessories", 41900, 12, "⌚", -9],
-    ["Dell XPS 15", "Dell", "Computer", 149900, 12, "💻", -1]
-  ];
-
-  return items.map((item, idx) => {
-    const d = new Date();
-    d.setMonth(d.getMonth() + item[6]);
-    return {
-      id: "product_" + idx,
-      name: item[0],
-      brand: item[1],
-      category: item[2],
-      price: item[3],
-      warranty_months: item[4],
-      emoji: item[5],
-      purchase_date: toLocalDateStr(d),
-      bill_name: "receipt_" + item[1].toLowerCase() + ".pdf",
-      bill_url: ""
-    };
-  });
 }
 
 // ============================================================
