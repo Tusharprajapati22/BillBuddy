@@ -1444,7 +1444,16 @@ button {
   gap: 10px;
 }
 
-/* Responsive adjustments */
+/* ========================================================= */
+/* RESPONSIVE & MOBILE DESIGN SYSTEM                         */
+/* ========================================================= */
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
 @media (max-width: 1100px) {
   .product-cards-grid { grid-template-columns: repeat(2, 1fr); }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1452,26 +1461,243 @@ button {
 }
 
 @media (max-width: 820px) {
-  .hero-grid { grid-template-columns: 1fr; gap: 40px; }
-  .hero-title { font-size: 38px; }
-  .comparison-grid { grid-template-columns: 1fr; }
-  .steps-grid { grid-template-columns: 1fr; }
-  .features-grid { grid-template-columns: 1fr; }
+  .container {
+    padding: 0 18px;
+  }
   
+  /* Navbar */
+  .landing-nav {
+    padding: 12px 0;
+  }
+  .landing-nav .nav-content {
+    gap: 12px;
+  }
+  .nav-links {
+    display: none; /* Hide wide links on mobile to prevent overflow */
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    padding: 55px 0 40px;
+  }
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .hero-title {
+    font-size: 34px;
+    letter-spacing: -0.8px;
+  }
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .steps-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Floating badges reset - avoid horizontal screen overflow */
+  .floating-badge {
+    position: static !important;
+    margin-top: 14px;
+    width: 100%;
+    animation: none !important;
+    box-shadow: var(--shadow-sm);
+  }
+  .floating-badge.badge-top,
+  .floating-badge.badge-bottom {
+    top: auto;
+    bottom: auto;
+    left: auto;
+    right: auto;
+  }
+
+  /* Dashboard mobile layout */
   .sidebar {
-    position: relative;
+    position: static;
     width: 100%;
     height: auto;
     border-right: none;
     border-bottom: 1px solid var(--border);
+    padding: 18px 16px;
   }
   .main-content {
     margin-left: 0;
     width: 100%;
-    padding: 20px;
+    padding: 20px 14px;
   }
   #dashboardApp {
     flex-direction: column;
+  }
+  .dashboard-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .topbar-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .topbar-actions .btn,
+  .topbar-actions .theme-toggle-btn {
+    flex: 1;
+    min-width: 110px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 14px;
+  }
+
+  /* Typography & Headings */
+  .hero-title {
+    font-size: 27px;
+    line-height: 1.25;
+    margin-bottom: 14px;
+  }
+  .hero-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+  }
+  .hero-badge {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+  .hero-cta {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+  }
+  .hero-cta .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 18px;
+  }
+  .hero-trust {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  /* Section Headings */
+  .section-heading {
+    font-size: 24px;
+    letter-spacing: -0.5px;
+  }
+  .section-subheading {
+    font-size: 14px;
+  }
+  .about-section, .features-section, .steps-section {
+    padding: 50px 0;
+  }
+
+  /* Calculator card */
+  .calculator-card {
+    padding: 22px 14px;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* CTA Banner */
+  .cta-section {
+    margin: 0 8px 45px;
+    padding: 40px 16px;
+    border-radius: 20px;
+  }
+  .cta-section h2 {
+    font-size: 24px;
+  }
+  .cta-section p {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+  #ctaGoogleBtn {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 13.5px;
+  }
+
+  /* Footer */
+  .landing-footer {
+    padding: 35px 0 25px;
+  }
+  .footer-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  /* Dashboard Stats & Products Grid */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .product-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .dash-section {
+    padding: 16px 12px;
+  }
+  .section-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .search-bar-wrap {
+    flex-direction: column;
+    width: 100%;
+  }
+  .search-input, .category-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Modals */
+  .auth-modal, .form-modal-card, .policy-modal-card {
+    padding: 22px 16px;
+    margin: 8px;
+    max-width: calc(100vw - 16px);
+    max-height: 92vh;
+  }
+  .form-group input, .form-group select {
+    font-size: 16px; /* Prevents auto-zoom in mobile Safari */
+  }
+
+  /* Navbar compact icons */
+  .brand-logo {
+    font-size: 19px;
+  }
+  .logo-badge {
+    display: none;
+  }
+  #themeToggleText, #dashThemeToggleText {
+    display: none;
+  }
+  .theme-toggle-btn {
+    padding: 7px 10px;
+  }
+  #navSignInBtn {
+    padding: 7px 12px;
+    font-size: 12px;
   }
 }
 </style>
@@ -1826,7 +2052,7 @@ button {
           © 2026 BillBuddy. All rights reserved. Keep your warranties protected.
         </div>
         <div style="font-weight: 600; font-size: 14px; color: var(--text);">
-          Built with ❤️ by <span style="color: var(--primary); font-weight: 800; letter-spacing: -0.2px;">Swanandi Prabhakar Baikar</span>
+          Built by <span style="color: var(--primary); font-weight: 800; letter-spacing: -0.2px;">Swanandi Prabhakar Baikar</span>
         </div>
       </div>
     </div>
